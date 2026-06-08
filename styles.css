@@ -98,8 +98,31 @@ h2 {
   gap: 8px;
 }
 
+.toggle {
+  display: inline-flex;
+  align-items: center;
+  align-self: center;
+  gap: 5px;
+  min-height: 0;
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.slot-form .toggle input {
+  width: 14px;
+  height: 14px;
+  min-height: 0;
+  padding: 0;
+  margin: 0;
+  accent-color: var(--accent);
+}
+
 .person-form input,
-.slot-form input {
+.slot-form input[type="date"],
+.slot-form input[type="time"] {
   width: 180px;
   min-height: 40px;
   padding: 0 12px;
@@ -166,6 +189,10 @@ h2 {
   grid-template-columns: 136px 112px 34px;
   gap: 8px;
   align-items: center;
+}
+
+.slot-row.day-only {
+  grid-template-columns: 136px 34px;
 }
 
 .slot-row input {
@@ -304,5 +331,9 @@ h2 {
 
   .slot-row {
     grid-template-columns: minmax(136px, 1fr) 106px 34px;
+  }
+
+  .slot-row.day-only {
+    grid-template-columns: minmax(136px, 1fr) 34px;
   }
 }

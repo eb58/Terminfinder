@@ -7,6 +7,7 @@ $initialState = [
     'people' => ['Frauke', 'Dominik', 'Sascha', 'Erich'],
     'availability' => (object) [],
     'slots' => initial_slots(),
+    'useTime' => true,
 ];
 
 header('Content-Type: application/json; charset=utf-8');
@@ -52,12 +53,12 @@ function normalize_slots($slots, array $fallback): array
         $id = is_string($slot['id'] ?? null) ? $slot['id'] : '';
         $date = is_string($slot['date'] ?? null) ? $slot['date'] : substr($id, 0, 10);
         $time = is_string($slot['time'] ?? null) ? $slot['time'] : substr($id, 11, 5);
-        if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $date) || !preg_match('/^\d{2}:\d{2}$/', $time)) {
+        if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $date) || !preg_match('/^(\d{2}:\d{2})?$/', $time)) {
             continue;
         }
 
         $normalized[] = [
-            'id' => $date . 'T' . $time,
+            'id' => $time === '' ? $date : $date . 'T' . $time,
             'date' => $date,
             'time' => $time,
             'order' => is_int($slot['order'] ?? null) ? $slot['order'] : $index,
@@ -83,6 +84,7 @@ function normalize_state($state, array $fallback): array
     ));
     $people = array_values(array_unique($people));
     $slots = normalize_slots($state['slots'] ?? null, $fallback['slots']);
+    $useTime = is_bool($state['useTime'] ?? null) ? $state['useTime'] : count(array_filter($slots, fn ($slot) => $slot['time'] !== '')) > 0;
     $slotIds = array_column($slots, 'id');
 
     $availability = [];
@@ -103,6 +105,7 @@ function normalize_state($state, array $fallback): array
         'people' => $people ?: $fallback['people'],
         'availability' => (object) $availability,
         'slots' => $slots,
+        'useTime' => $useTime,
     ];
 }
 

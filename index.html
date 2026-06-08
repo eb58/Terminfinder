@@ -10,22 +10,26 @@
     <main class="app">
       <section class="header">
         <div>
-          <p class="eyebrow">Termin abstimmen</p>
           <h1>Terminfinder</h1>
+          <p id="eyebrow" class="eyebrow">Termin abstimmen</p>
         </div>
-        <button id="resetButton" class="ghost-button" type="button">Zurücksetzen</button>
+        <button id="resetButton" class="ghost-button" type="button">Zur&uuml;cksetzen</button>
       </section>
 
       <section class="panel">
         <div class="panel-head">
           <div>
             <h2>Termine</h2>
-            <p>Datum und Uhrzeit bearbeiten oder weitere Vorschläge hinzufügen.</p>
+            <p>Datum bearbeiten oder weitere Vorschl&auml;ge hinzuf&uuml;gen.</p>
           </div>
           <form id="slotForm" class="slot-form">
             <input id="slotDate" type="date" aria-label="Datum">
-            <input id="slotTime" type="time" value="18:00" aria-label="Uhrzeit">
-            <button type="submit">Hinzufügen</button>
+            <input id="slotTime" type="time" aria-label="Uhrzeit">
+            <label class="toggle">
+              <input id="timeMode" type="checkbox" checked>
+              <span>mit Uhrzeit</span>
+            </label>
+            <button type="submit">Hinzuf&uuml;gen</button>
           </form>
         </div>
         <div id="slotList" class="slot-list" aria-label="Termine"></div>
@@ -35,11 +39,11 @@
         <div class="panel-head">
           <div>
             <h2>Teilnehmer</h2>
-            <p>Wähle aus, wer an welchem Termin kann. Mehrere Namen kannst du komma-separiert einfügen.</p>
+            <p>W&auml;hle aus, wer an welchem Termin kann. Mehrere Namen kannst du komma-separiert einf&uuml;gen.</p>
           </div>
           <form id="personForm" class="person-form">
             <input id="personInput" type="text" placeholder="Name" autocomplete="off" aria-label="Name">
-            <button type="submit">Hinzufügen</button>
+            <button type="submit">Hinzuf&uuml;gen</button>
           </form>
         </div>
         <div id="personList" class="person-list" aria-label="Teilnehmer"></div>
@@ -48,8 +52,7 @@
       <section class="panel">
         <div class="panel-head">
           <div>
-            <h2>Verfügbarkeiten</h2>
-            <p>Grün markierte Felder bedeuten: Person kann teilnehmen.</p>
+            <h2>Verf&uuml;gbarkeiten</h2>
           </div>
         </div>
         <div class="table-wrap">
@@ -61,7 +64,7 @@
         <div class="panel-head">
           <div>
             <h2>Beste Termine</h2>
-            <p>Sortiert nach Anzahl verfügbarer Personen.</p>
+            <p>Sortiert nach Anzahl verf&uuml;gbarer Personen.</p>
           </div>
         </div>
         <div id="results" class="results"></div>
