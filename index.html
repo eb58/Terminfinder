@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="de">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Terminfinder</title>
+    <link rel="stylesheet" href="styles.css">
+  </head>
+  <body>
+    <main class="app">
+      <section class="header">
+        <div>
+          <p class="eyebrow">Termin abstimmen</p>
+          <h1>Terminfinder</h1>
+        </div>
+        <button id="resetButton" class="ghost-button" type="button">Zurücksetzen</button>
+      </section>
+
+      <section class="panel">
+        <div class="panel-head">
+          <div>
+            <h2>Termine</h2>
+            <p>Datum und Uhrzeit bearbeiten oder weitere Vorschläge hinzufügen.</p>
+          </div>
+          <form id="slotForm" class="slot-form">
+            <input id="slotDate" type="date" aria-label="Datum">
+            <input id="slotTime" type="time" value="18:00" aria-label="Uhrzeit">
+            <button type="submit">Hinzufügen</button>
+          </form>
+        </div>
+        <div id="slotList" class="slot-list" aria-label="Termine"></div>
+      </section>
+
+      <section class="panel">
+        <div class="panel-head">
+          <div>
+            <h2>Teilnehmer</h2>
+            <p>Wähle aus, wer an welchem Termin kann. Mehrere Namen kannst du komma-separiert einfügen.</p>
+          </div>
+          <form id="personForm" class="person-form">
+            <input id="personInput" type="text" placeholder="Name" autocomplete="off" aria-label="Name">
+            <button type="submit">Hinzufügen</button>
+          </form>
+        </div>
+        <div id="personList" class="person-list" aria-label="Teilnehmer"></div>
+      </section>
+
+      <section class="panel">
+        <div class="panel-head">
+          <div>
+            <h2>Verfügbarkeiten</h2>
+            <p>Grün markierte Felder bedeuten: Person kann teilnehmen.</p>
+          </div>
+        </div>
+        <div class="table-wrap">
+          <table id="availabilityTable" class="availability-table"></table>
+        </div>
+      </section>
+
+      <section class="panel">
+        <div class="panel-head">
+          <div>
+            <h2>Beste Termine</h2>
+            <p>Sortiert nach Anzahl verfügbarer Personen.</p>
+          </div>
+        </div>
+        <div id="results" class="results"></div>
+      </section>
+    </main>
+
+    <script src="app.js"></script>
+  </body>
+</html>
