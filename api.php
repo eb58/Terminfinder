@@ -114,7 +114,7 @@ function normalize_state($state, array $fallback): array
 function poll_id(): string
 {
     $poll = $_GET['poll'] ?? 'default';
-    if (!is_string($poll) || !preg_match('/^[a-zA-Z0-9_-]{1,80}$/', $poll)) {
+    if (!is_string($poll) || !preg_match('/^[\p{L}\p{N}_-]{1,80}$/u', $poll)) {
         respond(['error' => 'Ungueltige Termin-Instanz.'], 400);
     }
 

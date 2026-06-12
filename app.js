@@ -16,7 +16,7 @@ const rawSlug = decodeURIComponent(window.location.pathname.split("/").filter(Bo
 const isAdmin = rawSlug.endsWith("*");
 const pollSlug = isAdmin ? rawSlug.slice(0, -1) : rawSlug;
 const ignoredSlugs = new Set(["terminfinder", "index.html", "api.php"]);
-const pollId = /^[a-z0-9_-]{1,80}$/i.test(pollSlug) && !ignoredSlugs.has(pollSlug.toLowerCase()) ? pollSlug : "default";
+const pollId = /^[\p{L}\p{N}_-]{1,80}$/u.test(pollSlug) && !ignoredSlugs.has(pollSlug.toLowerCase()) ? pollSlug : "default";
 if (!isAdmin) document.body.classList.add("readonly");
 const apiUrl = `api.php?poll=${encodeURIComponent(pollId)}`;
 const pollTitle = pollId === "default" ? "" : pollId.replace(/[-_]+/g, " ");
