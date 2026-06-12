@@ -10,12 +10,12 @@ const formatSlot = slot => {
   const date = formatter.format(new Date(`${slot.date}T00:00`));
   return slot.time ? `${date} ${slot.time}` : date;
 };
-const pollIdFromPath = () => {
-  const ignored = new Set(["terminfinder", "index.html", "api.php"]);
-  const slug = decodeURIComponent(window.location.pathname.split("/").filter(Boolean).at(-1) ?? "");
-  return /^[a-z0-9_-]{1,80}$/i.test(slug) && !ignored.has(slug.toLowerCase()) ? slug : "default";
-};
-const pollId = pollIdFromPath();
+const rawSlug = decodeURIComponent(window.location.pathname.split("/").filter(Boolean).at(-1) ?? "");
+const isAdmin = rawSlug.endsWith("*");
+const pollSlug = isAdmin ? rawSlug.slice(0, -1) : rawSlug;
+const ignoredSlugs = new Set(["terminfinder", "index.html", "api.php"]);
+const pollId = /^[a-z0-9_-]{1,80}$/i.test(pollSlug) && !ignoredSlugs.has(pollSlug.toLowerCase()) ? pollSlug : "default";
+if (!isAdmin) document.body.classList.add("readonly");
 const apiUrl = `api.php?poll=${encodeURIComponent(pollId)}`;
 const pollTitle = pollId === "default" ? "" : pollId.replace(/[-_]+/g, " ");
 
@@ -50,7 +50,7 @@ const normalizeSlots = slots =>
     }))
     .filter(slot => /^\d{4}-\d{2}-\d{2}$/.test(slot.date) && /^(\d{2}:\d{2})?$/.test(slot.time))
     .map(slot => ({ ...slot, id: slotId(slot.date, slot.time) }))
-    .sort((a, b) => a.order - b.order || a.id.localeCompare(b.id));
+    .sort((a, b) => a.id.localeCompare(b.id)).map((slot, order) => ({ ...slot, order }));
 
 const normalizeServerState = serverState => {
   const slots = normalizeSlots(serverState?.slots);
@@ -134,7 +134,7 @@ const removePerson = async name => {
 const addSlot = async (date, time) => {
   const nextTime = state.useTime ? time : "";
   if (!date || state.slots.some(slot => slot.id === slotId(date, nextTime))) return;
-  state.slots = [...state.slots, { id: slotId(date, nextTime), date, time: nextTime, order: state.slots.length }];
+  state.slots = [...state.slots, { id: slotId(date, nextTime), date, time: nextTime, order: 0 }].sort((a, b) => a.id.localeCompare(b.id)).map((slot, order) => ({ ...slot, order }));
   render();
   await save();
 };
@@ -144,7 +144,7 @@ const updateSlot = async (oldId, date, time) => {
   const newId = slotId(date, nextTime);
   if (!date || oldId === newId) return;
   if (state.slots.some(slot => slot.id === newId)) return;
-  state.slots = state.slots.map(slot => slot.id === oldId ? { ...slot, id: newId, date, time: nextTime } : slot);
+  state.slots = state.slots.map(slot => slot.id === oldId ? { ...slot, id: newId, date, time: nextTime } : slot).sort((a, b) => a.id.localeCompare(b.id)).map((slot, order) => ({ ...slot, order }));
   state.availability = Object.fromEntries(
     Object.entries(state.availability).map(([person, slots]) => [
       person,
@@ -215,14 +215,16 @@ const renderPeople = () => {
   list.innerHTML = "";
   state.people.forEach(person => {
     const chip = document.createElement("div");
-    const remove = document.createElement("button");
     chip.className = "person-chip";
     chip.textContent = person;
-    remove.type = "button";
-    remove.textContent = "x";
-    remove.ariaLabel = `${person} entfernen`;
-    remove.addEventListener("click", () => removePerson(person));
-    chip.append(remove);
+    if (isAdmin) {
+      const remove = document.createElement("button");
+      remove.type = "button";
+      remove.textContent = "x";
+      remove.ariaLabel = `${person} entfernen`;
+      remove.addEventListener("click", () => removePerson(person));
+      chip.append(remove);
+    }
     list.append(chip);
   });
 };
@@ -237,23 +239,27 @@ const renderSlots = () => {
   list.innerHTML = "";
   state.slots.forEach(slot => {
     const row = document.createElement("div");
-    const date = document.createElement("input");
-    const time = document.createElement("input");
-    const remove = document.createElement("button");
     row.className = `slot-row${state.useTime ? "" : " day-only"}`;
-    date.type = "date";
-    date.value = slot.date;
-    date.ariaLabel = "Datum";
-    time.type = "time";
-    time.value = slot.time;
-    time.ariaLabel = "Uhrzeit";
-    date.addEventListener("change", () => updateSlot(slot.id, date.value, time.value));
-    time.addEventListener("change", () => updateSlot(slot.id, date.value, time.value));
-    remove.type = "button";
-    remove.textContent = "x";
-    remove.ariaLabel = `${formatSlot(slot)} entfernen`;
-    remove.addEventListener("click", () => removeSlot(slot.id));
-    state.useTime ? row.append(date, time, remove) : row.append(date, remove);
+    if (isAdmin) {
+      const date = document.createElement("input");
+      const time = document.createElement("input");
+      const remove = document.createElement("button");
+      date.type = "date";
+      date.value = slot.date;
+      date.ariaLabel = "Datum";
+      time.type = "time";
+      time.value = slot.time;
+      time.ariaLabel = "Uhrzeit";
+      date.addEventListener("change", () => updateSlot(slot.id, date.value, time.value));
+      time.addEventListener("change", () => updateSlot(slot.id, date.value, time.value));
+      remove.type = "button";
+      remove.textContent = "x";
+      remove.ariaLabel = `${formatSlot(slot)} entfernen`;
+      remove.addEventListener("click", () => removeSlot(slot.id));
+      state.useTime ? row.append(date, time, remove) : row.append(date, remove);
+    } else {
+      row.textContent = formatSlot(slot);
+    }
     list.append(row);
   });
 };

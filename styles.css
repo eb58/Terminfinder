@@ -15,6 +15,10 @@
   box-sizing: border-box;
 }
 
+body.readonly .admin-only {
+  display: none;
+}
+
 body {
   margin: 0;
   min-height: 100vh;
@@ -33,23 +37,23 @@ button {
 }
 
 .app {
-  width: min(1180px, calc(100% - 32px));
+  width: min(1180px, calc(100% - 24px));
   margin: 0 auto;
-  padding: 32px 0;
+  padding: 18px 0;
 }
 
 .header {
   display: flex;
   align-items: end;
   justify-content: space-between;
-  gap: 16px;
-  margin-bottom: 18px;
+  gap: 12px;
+  margin-bottom: 12px;
 }
 
 .eyebrow {
-  margin: 0 0 6px;
+  margin: 0 0 4px;
   color: var(--accent);
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 700;
   text-transform: uppercase;
 }
@@ -61,17 +65,17 @@ p {
 }
 
 h1 {
-  font-size: clamp(32px, 5vw, 54px);
+  font-size: clamp(24px, 4vw, 38px);
   line-height: 1;
 }
 
 h2 {
-  font-size: 19px;
+  font-size: 17px;
 }
 
 .panel {
-  margin-top: 16px;
-  padding: 18px;
+  margin-top: 12px;
+  padding: 14px;
   background: var(--panel);
   border: 1px solid var(--line);
   border-radius: 8px;
@@ -82,14 +86,14 @@ h2 {
   display: flex;
   align-items: start;
   justify-content: space-between;
-  gap: 18px;
-  margin-bottom: 14px;
+  gap: 14px;
+  margin-bottom: 10px;
 }
 
 .panel-head p {
-  margin-top: 5px;
+  margin-top: 4px;
   color: var(--muted);
-  font-size: 14px;
+  font-size: 13px;
 }
 
 .person-form,
@@ -123,9 +127,9 @@ h2 {
 .person-form input,
 .slot-form input[type="date"],
 .slot-form input[type="time"] {
-  width: 180px;
-  min-height: 40px;
-  padding: 0 12px;
+  width: 170px;
+  min-height: 36px;
+  padding: 0 10px;
   border: 1px solid var(--line);
   border-radius: 6px;
 }
@@ -133,8 +137,8 @@ h2 {
 .person-form button,
 .slot-form button,
 .ghost-button {
-  min-height: 40px;
-  padding: 0 14px;
+  min-height: 36px;
+  padding: 0 12px;
   border: 1px solid var(--accent);
   border-radius: 6px;
   background: var(--accent);
@@ -160,12 +164,13 @@ h2 {
 .person-chip {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-  min-height: 34px;
-  padding: 0 8px 0 12px;
+  gap: 6px;
+  min-height: 30px;
+  padding: 0 10px;
   border: 1px solid var(--line);
   border-radius: 999px;
   background: #f8fafc;
+  font-size: 14px;
 }
 
 .person-chip button {
@@ -221,14 +226,13 @@ h2 {
 
 .availability-table {
   width: 100%;
-  min-width: 620px;
   border-collapse: collapse;
 }
 
 .availability-table th,
 .availability-table td {
-  height: 40px;
-  padding: 5px 7px;
+  height: 36px;
+  padding: 4px 6px;
   border-bottom: 1px solid var(--line);
   text-align: center;
 }
@@ -247,10 +251,11 @@ h2 {
   position: sticky;
   left: 0;
   z-index: 2;
-  min-width: 136px;
+  min-width: 110px;
   background: #fff;
   text-align: left;
   font-weight: 700;
+  white-space: nowrap;
 }
 
 .availability-table th:first-child {
@@ -281,12 +286,12 @@ h2 {
 
 .results {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
-  gap: 10px;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 8px;
 }
 
 .result {
-  padding: 13px;
+  padding: 10px 12px;
   border: 1px solid var(--line);
   border-radius: 8px;
   background: #fbfcfd;
@@ -299,41 +304,82 @@ h2 {
 
 .result strong {
   display: block;
-  margin-bottom: 6px;
+  margin-bottom: 4px;
 }
 
 .result span {
   color: var(--muted);
-  font-size: 14px;
+  font-size: 13px;
 }
 
 @media (max-width: 700px) {
   .app {
-    width: min(100% - 20px, 1180px);
-    padding: 18px 0;
+    width: calc(100% - 16px);
+    padding: 12px 0;
   }
 
-  .header,
+  .header {
+    align-items: center;
+    flex-direction: row;
+    margin-bottom: 8px;
+  }
+
+  .ghost-button {
+    width: auto;
+    align-self: start;
+  }
+
+  .panel {
+    margin-top: 10px;
+    padding: 12px 10px;
+  }
+
   .panel-head,
   .person-form,
   .slot-form {
     align-items: stretch;
     flex-direction: column;
+    gap: 8px;
   }
 
   .person-form input,
   .person-form button,
   .slot-form input,
-  .slot-form button,
-  .ghost-button {
+  .slot-form button {
     width: 100%;
   }
 
+  .slot-list {
+    grid-template-columns: 1fr;
+  }
+
   .slot-row {
-    grid-template-columns: minmax(136px, 1fr) 106px 34px;
+    grid-template-columns: minmax(120px, 1fr) 100px 34px;
   }
 
   .slot-row.day-only {
-    grid-template-columns: minmax(136px, 1fr) 34px;
+    grid-template-columns: minmax(120px, 1fr) 34px;
+  }
+
+  .availability-table th,
+  .availability-table td {
+    height: 38px;
+    padding: 3px 4px;
+    font-size: 13px;
+  }
+
+  .availability-table th:first-child,
+  .availability-table td:first-child {
+    min-width: 96px;
+    font-size: 13px;
+  }
+
+  .slot-button {
+    width: 32px;
+    height: 32px;
+  }
+
+  .results {
+    grid-template-columns: 1fr;
   }
 }
