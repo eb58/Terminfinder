@@ -415,16 +415,20 @@ h2 {
   }
 
   .panel-head,
-  .person-form,
-  .slot-form {
+  .person-form {
     align-items: stretch;
     flex-direction: column;
     gap: 8px;
   }
 
+  .slot-form {
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+  }
+
   .person-form input,
   .person-form button,
-  .slot-form input,
   .slot-form button {
     width: 100%;
   }
