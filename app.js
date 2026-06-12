@@ -1,5 +1,7 @@
 const initialPeople = ["Frauke", "Dominik", "Sascha", "Erich"];
 const formatter = new Intl.DateTimeFormat("de-DE", { weekday: "short", day: "2-digit", month: "2-digit", });
+const weekdayFormatter = new Intl.DateTimeFormat("de-DE", { weekday: "short" });
+const dayFormatter = new Intl.DateTimeFormat("de-DE", { day: "2-digit", month: "2-digit" });
 
 const byId = id => document.getElementById(id);
 const isoDate = date => date.toISOString().slice(0, 10);
@@ -39,6 +41,7 @@ const state = {
   availability: {},
   slots: buildInitialSlots(),
   useTime: true,
+  invitation: "",
 };
 
 const normalizeSlots = slots =>
@@ -61,6 +64,7 @@ const normalizeServerState = serverState => {
       : {},
     slots,
     useTime: typeof serverState?.useTime === "boolean" ? serverState.useTime : slots.some(slot => slot.time),
+    invitation: typeof serverState?.invitation === "string" ? serverState.invitation : "",
   };
 };
 
@@ -70,6 +74,7 @@ const applyServerState = serverState => {
   state.availability = nextState.availability;
   state.slots = nextState.slots;
   state.useTime = nextState.useTime;
+  state.invitation = nextState.invitation;
 };
 
 const requestJson = async (url, options = {}) => {
@@ -94,17 +99,21 @@ const save = async () => {
       availability: state.availability,
       slots: state.slots,
       useTime: state.useTime,
+      invitation: state.invitation,
     }),
   });
   applyServerState(serverState);
   render();
 };
 
+const NONE_ID = "none";
 const isAvailable = (person, slotId) => state.availability[person]?.includes(slotId) ?? false;
 
 const toggleAvailability = async (person, slotId) => {
   const slots = new Set(state.availability[person] ?? []);
-  slots.has(slotId) ? slots.delete(slotId) : slots.add(slotId);
+  if (slots.has(slotId)) slots.delete(slotId);
+  else if (slotId === NONE_ID) (slots.clear(), slots.add(NONE_ID));
+  else (slots.delete(NONE_ID), slots.add(slotId));
   state.availability[person] = [...slots];
   render();
   await save();
@@ -171,13 +180,13 @@ const stripSlotTimes = () => {
     if (!slotsByDate.has(slot.date)) slotsByDate.set(slot.date, { ...slot, id: slot.date, time: "" });
   });
   state.slots = [...slotsByDate.values()].map((slot, order) => ({ ...slot, order }));
-  remapAvailability(idMap, new Set(state.slots.map(slot => slot.id)));
+  remapAvailability(idMap, new Set([...state.slots.map(slot => slot.id), NONE_ID]));
 };
 
 const applyTimeToSlots = time => {
   const idMap = new Map(state.slots.map(slot => [slot.id, slotId(slot.date, time)]));
   state.slots = state.slots.map(slot => ({ ...slot, id: slotId(slot.date, time), time }));
-  remapAvailability(idMap, new Set(state.slots.map(slot => slot.id)));
+  remapAvailability(idMap, new Set([...state.slots.map(slot => slot.id), NONE_ID]));
 };
 
 const toggleTimeMode = async checked => {
@@ -206,6 +215,7 @@ const reset = async () => {
   state.availability = {};
   state.slots = buildInitialSlots();
   state.useTime = true;
+  state.invitation = "";
   render();
   await save();
 };
@@ -284,7 +294,18 @@ const renderTable = () => {
   state.slots.forEach(slot => {
     const row = document.createElement("tr");
     const dateCell = document.createElement("td");
-    dateCell.textContent = formatSlot(slot);
+    const weekday = document.createElement("span");
+    const day = document.createElement("span");
+    weekday.className = "slot-dow";
+    weekday.textContent = weekdayFormatter.format(new Date(`${slot.date}T00:00`));
+    day.textContent = dayFormatter.format(new Date(`${slot.date}T00:00`));
+    dateCell.append(weekday, day);
+    if (slot.time) {
+      const time = document.createElement("span");
+      time.className = "slot-tod";
+      time.textContent = slot.time;
+      dateCell.append(time);
+    }
     row.append(dateCell);
 
     state.people.forEach(person => {
@@ -301,6 +322,26 @@ const renderTable = () => {
     tbody.append(row);
   });
 
+  const everyoneHasDate = state.people.every(person => (state.availability[person] ?? []).some(id => id !== NONE_ID));
+  if (!isAdmin && !everyoneHasDate) {
+    const row = document.createElement("tr");
+    row.className = "none-row";
+    const labelCell = document.createElement("td");
+    labelCell.textContent = "Kein Termin passt";
+    row.append(labelCell);
+    state.people.forEach(person => {
+      const cell = document.createElement("td");
+      const button = document.createElement("button");
+      button.className = `slot-button${isAvailable(person, NONE_ID) ? " active" : ""}`;
+      button.type = "button";
+      button.ariaLabel = `${person}, kein Termin passt`;
+      button.addEventListener("click", () => toggleAvailability(person, NONE_ID));
+      cell.append(button);
+      row.append(cell);
+    });
+    tbody.append(row);
+  }
+
   thead.append(headerRow);
   table.replaceChildren(thead, tbody);
 };
@@ -315,22 +356,36 @@ const renderResults = () => {
     .sort((a, b) => b.available.length - a.available.length || a.order - b.order);
   const bestCount = ranked[0]?.available.length ?? 0;
 
+  const makeResult = (label, available, className) => {
+    const article = document.createElement("article");
+    const title = document.createElement("strong");
+    const detail = document.createElement("span");
+    article.className = className;
+    title.textContent = label;
+    detail.textContent = `${available.length}/${state.people.length}: ${available.length ? available.join(", ") : "Noch niemand"}`;
+    article.append(title, detail);
+    return article;
+  };
+
+  const noneAvailable = state.people.filter(person => isAvailable(person, NONE_ID));
+  const allVoted = state.people.length > 0 && state.people.every(person => state.availability[person]?.length);
+  const noSlotFitsAll = allVoted && bestCount < state.people.length;
   results.replaceChildren(
-    ...ranked.map(slot => {
-      const count = slot.available.length;
-      const article = document.createElement("article");
-      const title = document.createElement("strong");
-      const detail = document.createElement("span");
-      article.className = count === bestCount && count > 0 ? "result best" : "result";
-      title.textContent = formatSlot(slot);
-      detail.textContent = `${count}/${state.people.length}: ${count ? slot.available.join(", ") : "Noch niemand"}`;
-      article.append(title, detail);
-      return article;
-    }),
+    ...ranked.slice(0, 3).map(slot =>
+      makeResult(formatSlot(slot), slot.available, slot.available.length === bestCount && slot.available.length > 0 ? "result best" : "result")),
+    ...noSlotFitsAll ? [makeResult("Kein Termin passt", noneAvailable, "result none")] : [],
   );
 };
 
+const renderInvitation = () => {
+  byId("inviteInput").value = state.invitation;
+  byId("inviteText").textContent = state.invitation;
+  byId("inviteText").hidden = isAdmin || !state.invitation;
+  byId("invitePanel").hidden = !isAdmin && !state.invitation;
+};
+
 const render = () => {
+  renderInvitation();
   renderPeople();
   renderSlots();
   renderTable();
@@ -354,6 +409,11 @@ byId("slotForm").addEventListener("submit", async event => {
 });
 
 byId("timeMode").addEventListener("change", event => toggleTimeMode(event.target.checked));
+byId("inviteInput").addEventListener("change", async event => {
+  state.invitation = event.target.value.trim();
+  render();
+  await save();
+});
 byId("eyebrow").textContent = pollTitle ? `Termin abstimmen für ${pollTitle}` : "Termin abstimmen";
 
 const nextSlotDate = new Date();

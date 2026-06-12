@@ -115,6 +115,24 @@ h2 {
   gap: 8px;
 }
 
+#invitePanel h2 {
+  margin-bottom: 10px;
+}
+
+.invite-input {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  font: inherit;
+  resize: vertical;
+}
+
+.invite-text {
+  font-size: 16px;
+  white-space: pre-line;
+}
+
 .toggle {
   display: inline-flex;
   align-items: center;
@@ -164,8 +182,14 @@ h2 {
   color: var(--accent);
 }
 
+.slot-form input[type="date"] {
+  width: 126px;
+  padding: 0 6px;
+}
+
 .slot-form input[type="time"] {
-  width: 120px;
+  width: 92px;
+  padding: 0 6px;
 }
 
 .person-list {
@@ -198,32 +222,33 @@ h2 {
 
 .slot-list {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(264px, 1fr));
   gap: 8px;
 }
 
 .slot-row {
   display: grid;
-  grid-template-columns: 136px 112px 34px;
-  gap: 8px;
+  grid-template-columns: 126px 92px 28px;
+  gap: 4px;
   align-items: center;
+  justify-content: start;
 }
 
 .slot-row.day-only {
-  grid-template-columns: 136px 34px;
+  grid-template-columns: 126px 28px;
 }
 
 .slot-row input {
   min-width: 0;
-  min-height: 38px;
-  padding: 0 10px;
+  min-height: 36px;
+  padding: 0 6px;
   border: 1px solid var(--line);
   border-radius: 6px;
 }
 
 .slot-row button {
-  width: 34px;
-  height: 34px;
+  width: 28px;
+  height: 28px;
   border: 0;
   border-radius: 50%;
   background: transparent;
@@ -269,11 +294,45 @@ h2 {
   text-align: left;
   font-weight: 700;
   white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+.slot-dow {
+  display: inline-block;
+  width: 2.4em;
+  color: var(--muted);
+  font-weight: 400;
+}
+
+.slot-tod {
+  margin-left: 10px;
+  color: var(--muted);
+  font-weight: 400;
 }
 
 .availability-table th:first-child {
   z-index: 3;
   background: #f8fafc;
+}
+
+.none-row td {
+  border-top: 2px solid var(--line);
+  color: var(--danger);
+}
+
+.none-row .slot-button.active {
+  border-color: var(--danger);
+  background: #fdecea;
+}
+
+.none-row .slot-button.active::after {
+  content: "✗";
+  color: var(--danger);
+}
+
+.result.none {
+  border-color: var(--danger);
+  background: #fdf3f2;
 }
 
 .slot-button {
@@ -375,11 +434,11 @@ h2 {
   }
 
   .slot-row {
-    grid-template-columns: minmax(120px, 1fr) 100px 34px;
+    grid-template-columns: 126px 92px 28px;
   }
 
   .slot-row.day-only {
-    grid-template-columns: minmax(120px, 1fr) 34px;
+    grid-template-columns: 126px 28px;
   }
 
   .availability-table th,

@@ -8,6 +8,7 @@ $initialState = [
     'availability' => (object) [],
     'slots' => initial_slots(),
     'useTime' => true,
+    'invitation' => '',
 ];
 
 header('Content-Type: application/json; charset=utf-8');
@@ -96,7 +97,7 @@ function normalize_state($state, array $fallback): array
 
             $availability[$person] = array_values(array_unique(array_filter(
                 array_map(fn ($slot) => is_string($slot) ? trim($slot) : '', $personSlots),
-                fn ($slot) => in_array($slot, $slotIds, true)
+                fn ($slot) => $slot === 'none' || in_array($slot, $slotIds, true)
             )));
         }
     }
@@ -106,6 +107,7 @@ function normalize_state($state, array $fallback): array
         'availability' => (object) $availability,
         'slots' => $slots,
         'useTime' => $useTime,
+        'invitation' => is_string($state['invitation'] ?? null) ? trim($state['invitation']) : ($fallback['invitation'] ?? ''),
     ];
 }
 
