@@ -384,6 +384,80 @@ h2 {
   font-size: 13px;
 }
 
+.landing-intro {
+  margin-top: 10px;
+  font-size: 15px;
+  color: var(--muted);
+}
+
+.landing-steps {
+  margin: 16px 0 0;
+  padding-left: 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.landing-steps li {
+  font-size: 14px;
+  color: var(--muted);
+}
+
+.landing-steps li strong {
+  display: block;
+  color: var(--text);
+  margin-bottom: 2px;
+}
+
+.landing-create {
+  margin-top: 20px;
+  padding-top: 16px;
+  border-top: 1px solid var(--line);
+}
+
+.landing-create h3 {
+  margin-bottom: 10px;
+  font-size: 15px;
+}
+
+.create-poll-form {
+  display: flex;
+  gap: 8px;
+}
+
+.create-poll-form input {
+  flex: 1;
+  min-height: 36px;
+  padding: 0 10px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+}
+
+.create-poll-form button {
+  min-height: 36px;
+  padding: 0 14px;
+  border: 1px solid var(--accent);
+  border-radius: 6px;
+  background: var(--accent);
+  color: #fff;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.landing-hint {
+  margin-top: 8px;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.landing-hint code,
+.landing-steps code {
+  background: #f0f4f8;
+  border-radius: 3px;
+  padding: 1px 4px;
+  font-size: 11px;
+}
+
 @media (max-width: 700px) {
   .app {
     width: calc(100% - 16px);
@@ -430,6 +504,15 @@ h2 {
   .person-form input,
   .person-form button,
   .slot-form button {
+    width: 100%;
+  }
+
+  .create-poll-form {
+    flex-direction: column;
+  }
+
+  .create-poll-form input,
+  .create-poll-form button {
     width: 100%;
   }
 

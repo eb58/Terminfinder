@@ -19,65 +19,98 @@
         <button id="resetButton" class="ghost-button admin-only" type="button">Zur&uuml;cksetzen</button>
       </section>
 
-      <section class="panel" id="invitePanel">
-        <h2 class="admin-only">Einladung</h2>
-        <textarea id="inviteInput" class="invite-input admin-only" rows="3" placeholder="Kurze Einladung an die Teilnehmer, z. B. worum es geht und bis wann abgestimmt werden soll."></textarea>
-        <p id="inviteText" class="invite-text"></p>
-      </section>
-
-      <section class="panel admin-only">
-        <div class="panel-head">
-          <div>
-            <h2>Termine</h2>
-            <p class="admin-only">Datum bearbeiten oder weitere Vorschl&auml;ge hinzuf&uuml;gen.</p>
-          </div>
-          <form id="slotForm" class="slot-form admin-only">
-            <input id="slotDate" type="date" aria-label="Datum">
-            <input id="slotTime" type="time" aria-label="Uhrzeit">
-            <label class="toggle">
-              <input id="timeMode" type="checkbox" checked>
-              <span>mit Uhrzeit</span>
-            </label>
-            <button type="submit">Hinzuf&uuml;gen</button>
+      <section class="panel" id="landingPage" hidden>
+        <h2>Wie funktioniert der Terminfinder?</h2>
+        <p class="landing-intro">Der Terminfinder hilft, einen gemeinsamen Termin für eine Gruppe zu finden – ohne Anmeldung, direkt im Browser.</p>
+        <ol class="landing-steps">
+          <li>
+            <strong>Umfrage anlegen</strong>
+            Erstelle unten eine neue Umfrage. Du erhältst einen Admin-Link (mit <code>*</code>), mit dem du Termine und Teilnehmer festlegen kannst.
+          </li>
+          <li>
+            <strong>Einladen</strong>
+            Teile den Link <em>ohne</em> <code>*</code> mit den Teilnehmern. Sie können darüber abstimmen, ohne etwas installieren zu müssen.
+          </li>
+          <li>
+            <strong>Abstimmen</strong>
+            Jeder Teilnehmer markiert, wann er kann. Wer keinen Termin wahrnehmen kann, wählt „Kein Termin passt".
+          </li>
+          <li>
+            <strong>Ergebnis</strong>
+            Sobald alle abgestimmt haben, werden die besten Termine automatisch hervorgehoben.
+          </li>
+        </ol>
+        <div class="landing-create">
+          <h3>Neue Umfrage erstellen</h3>
+          <form id="createPollForm" class="create-poll-form">
+            <input id="pollNameInput" type="text" placeholder="Name der Veranstaltung" autocomplete="off" maxlength="80">
+            <button type="submit">Als Admin öffnen</button>
           </form>
-        </div>
-        <div id="slotList" class="slot-list" aria-label="Termine"></div>
-      </section>
-
-      <section class="panel admin-only">
-        <div class="panel-head">
-          <div>
-            <h2>Teilnehmer</h2>
-            <p class="admin-only">W&auml;hle aus, wer an welchem Termin kann. Mehrere Namen kannst du komma-separiert einf&uuml;gen.</p>
-          </div>
-          <form id="personForm" class="person-form admin-only">
-            <input id="personInput" type="text" placeholder="Name" autocomplete="off" aria-label="Name">
-            <button type="submit">Hinzuf&uuml;gen</button>
-          </form>
-        </div>
-        <div id="personList" class="person-list" aria-label="Teilnehmer"></div>
-      </section>
-
-      <section class="panel">
-        <div class="panel-head">
-          <div>
-            <h2>Verf&uuml;gbarkeiten</h2>
-          </div>
-        </div>
-        <div class="table-wrap">
-          <table id="availabilityTable" class="availability-table"></table>
+          <p class="landing-hint">Der Name wird Teil der URL, z.&thinsp;B. <code>/Sommerfest*</code> für den Admin-Link.</p>
         </div>
       </section>
 
-      <section class="panel">
-        <div class="panel-head">
-          <div>
-            <h2>Beste Termine</h2>
-            <p>Sortiert nach Anzahl verf&uuml;gbarer Personen.</p>
+      <div id="pollApp">
+        <section class="panel" id="invitePanel">
+          <h2 class="admin-only">Einladung</h2>
+          <textarea id="inviteInput" class="invite-input admin-only" rows="3" placeholder="Kurze Einladung an die Teilnehmer, z. B. worum es geht und bis wann abgestimmt werden soll."></textarea>
+          <p id="inviteText" class="invite-text"></p>
+        </section>
+
+        <section class="panel admin-only">
+          <div class="panel-head">
+            <div>
+              <h2>Termine</h2>
+              <p class="admin-only">Datum bearbeiten oder weitere Vorschl&auml;ge hinzuf&uuml;gen.</p>
+            </div>
+            <form id="slotForm" class="slot-form admin-only">
+              <input id="slotDate" type="date" aria-label="Datum">
+              <input id="slotTime" type="time" aria-label="Uhrzeit">
+              <label class="toggle">
+                <input id="timeMode" type="checkbox" checked>
+                <span>mit Uhrzeit</span>
+              </label>
+              <button type="submit">Hinzuf&uuml;gen</button>
+            </form>
           </div>
-        </div>
-        <div id="results" class="results"></div>
-      </section>
+          <div id="slotList" class="slot-list" aria-label="Termine"></div>
+        </section>
+
+        <section class="panel admin-only">
+          <div class="panel-head">
+            <div>
+              <h2>Teilnehmer</h2>
+              <p class="admin-only">W&auml;hle aus, wer an welchem Termin kann. Mehrere Namen kannst du komma-separiert einf&uuml;gen.</p>
+            </div>
+            <form id="personForm" class="person-form admin-only">
+              <input id="personInput" type="text" placeholder="Name" autocomplete="off" aria-label="Name">
+              <button type="submit">Hinzuf&uuml;gen</button>
+            </form>
+          </div>
+          <div id="personList" class="person-list" aria-label="Teilnehmer"></div>
+        </section>
+
+        <section class="panel">
+          <div class="panel-head">
+            <div>
+              <h2>Verf&uuml;gbarkeiten</h2>
+            </div>
+          </div>
+          <div class="table-wrap">
+            <table id="availabilityTable" class="availability-table"></table>
+          </div>
+        </section>
+
+        <section class="panel">
+          <div class="panel-head">
+            <div>
+              <h2>Beste Termine</h2>
+              <p>Sortiert nach Anzahl verf&uuml;gbarer Personen.</p>
+            </div>
+          </div>
+          <div id="results" class="results"></div>
+        </section>
+      </div>
     </main>
 
     <script src="app.js"></script>

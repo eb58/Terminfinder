@@ -12,11 +12,12 @@ const formatSlot = slot => {
   const date = formatter.format(new Date(`${slot.date}T00:00`));
   return slot.time ? `${date} ${slot.time}` : date;
 };
-const rawSlug = decodeURIComponent(window.location.pathname.split("/").filter(Boolean).at(-1) ?? "");
+const rawSlug = decodeURIComponent(globalThis.location.pathname.split("/").findLast(Boolean) ?? "");
 const isAdmin = rawSlug.endsWith("*");
 const pollSlug = isAdmin ? rawSlug.slice(0, -1) : rawSlug;
 const ignoredSlugs = new Set(["terminfinder", "index.html", "api.php"]);
 const pollId = /^[\p{L}\p{N}_-]{1,80}$/u.test(pollSlug) && !ignoredSlugs.has(pollSlug.toLowerCase()) ? pollSlug : "default";
+const isLanding = rawSlug === "" || ignoredSlugs.has(rawSlug.toLowerCase());
 if (!isAdmin) document.body.classList.add("readonly");
 const apiUrl = `api.php?poll=${encodeURIComponent(pollId)}`;
 const pollTitle = pollId === "default" ? "" : pollId.replace(/[-_]+/g, " ");
@@ -422,8 +423,21 @@ byId("slotDate").value = isoDate(nextSlotDate);
 
 byId("resetButton").addEventListener("click", reset);
 
-render();
-load().catch(error => {
-  console.error(error);
-  alert("Der gespeicherte Status konnte nicht geladen werden.");
-});
+if (isLanding) {
+  byId("landingPage").hidden = false;
+  byId("pollApp").hidden = true;
+  byId("resetButton").hidden = true;
+  byId("eyebrow").textContent = "Terminabstimmung für Gruppen";
+  byId("createPollForm").addEventListener("submit", event => {
+    event.preventDefault();
+    const raw = byId("pollNameInput").value.trim();
+    const slug = raw.replace(/\s+/g, "-").replace(/[^\p{L}\p{N}_-]/gu, "").slice(0, 80);
+    if (slug) globalThis.location.href = `./${slug}*`;
+  });
+} else {
+  render();
+  load().catch(error => {
+    console.error(error);
+    alert("Der gespeicherte Status konnte nicht geladen werden.");
+  });
+}
