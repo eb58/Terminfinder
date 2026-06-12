@@ -50,6 +50,19 @@ button {
   margin-bottom: 12px;
 }
 
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.logo {
+  height: 42px;
+  width: auto;
+  max-width: 45vw;
+  object-fit: contain;
+}
+
 .eyebrow {
   margin: 0 0 4px;
   color: var(--accent);
@@ -322,6 +335,14 @@ h2 {
     align-items: center;
     flex-direction: row;
     margin-bottom: 8px;
+  }
+
+  .brand {
+    gap: 10px;
+  }
+
+  .logo {
+    height: 30px;
   }
 
   .ghost-button {

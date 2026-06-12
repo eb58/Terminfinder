@@ -133,6 +133,42 @@ function read_state(string $dataFile, array $fallback): array
     return normalize_state(json_decode($json, true), $fallback);
 }
 
+function all_voted(array $state): bool
+{
+    $availability = (array) $state['availability'];
+    return $state['people'] !== []
+        && count(array_filter($state['people'], fn ($person) => !empty($availability[$person]))) === count($state['people']);
+}
+
+function send_mail(string $subject, string $body): bool
+{
+    $sent = @mail(
+        'erich.brandl@gmail.com',
+        $subject,
+        $body,
+        "From: vorstand@senioren-luebars.berlin\r\nContent-Type: text/plain; charset=utf-8",
+        '-fvorstand@senioren-luebars.berlin'
+    );
+    @file_put_contents(
+        __DIR__ . DIRECTORY_SEPARATOR . 'data' . DIRECTORY_SEPARATOR . 'mail.log',
+        date('c') . ' ' . ($sent ? 'OK' : 'FEHLER') . ' ' . $subject . "\n",
+        FILE_APPEND
+    );
+    return $sent;
+}
+
+function notify_complete(string $pollId, array $state): void
+{
+    $total = count($state['people']);
+    $host = $_SERVER['HTTP_HOST'] ?? 'senioren-luebars.berlin';
+    $base = 'https://' . $host . rtrim(dirname($_SERVER['SCRIPT_NAME'] ?? '/terminfinder/api.php'), '/');
+    $link = $pollId === 'default' ? $base . '/' : $base . '/' . $pollId;
+
+    $title = $pollId === 'default' ? 'Terminfinder' : $pollId;
+    $body = "Alle $total Teilnehmer haben abgestimmt ($title).\n\nZur Abstimmung: $link\n";
+    send_mail("Terminfinder: Abstimmung \"$title\" ist komplett", $body);
+}
+
 function write_state(string $dataDir, string $dataFile, array $state): void
 {
     if (!is_dir($dataDir) && !mkdir($dataDir, 0775, true) && !is_dir($dataDir)) {
@@ -146,16 +182,24 @@ function write_state(string $dataDir, string $dataFile, array $state): void
 }
 
 $method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
-$dataFile = $dataDir . DIRECTORY_SEPARATOR . poll_id() . '.json';
+$pollId = poll_id();
+$dataFile = $dataDir . DIRECTORY_SEPARATOR . $pollId . '.json';
 
 if ($method === 'GET') {
+    if (isset($_GET['mailtest'])) {
+        respond(['mailSent' => send_mail('Terminfinder Testmail', 'Testmail vom Terminfinder.')]);
+    }
     respond(read_state($dataFile, $initialState));
 }
 
 if ($method === 'PUT') {
     $body = file_get_contents('php://input');
     $state = normalize_state(json_decode($body ?: '', true), $initialState);
+    $wasComplete = all_voted(read_state($dataFile, $initialState));
     write_state($dataDir, $dataFile, $state);
+    if (!$wasComplete && all_voted($state)) {
+        notify_complete($pollId, $state);
+    }
     respond($state);
 }
 
