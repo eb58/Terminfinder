@@ -111,18 +111,42 @@ function normalize_state($state, array $fallback): array
     ];
 }
 
+function normalize_poll_id(string $id): string
+{
+    return preg_replace('/[^\x00-\x7F]/u', '', $id);
+}
+
 function poll_id(): string
 {
     $poll = $_GET['poll'] ?? 'default';
     if (!is_string($poll) || !preg_match('/^[\p{L}\p{N}_-]{1,80}$/u', $poll)) {
         respond(['error' => 'Ungueltige Termin-Instanz.'], 400);
     }
+    return normalize_poll_id($poll);
+}
 
-    return $poll;
+function resolve_data_file(string $dataFile): string
+{
+    if (is_file($dataFile)) {
+        return $dataFile;
+    }
+    $dir = dirname($dataFile);
+    $pollId = basename($dataFile, '.json');
+    if (!is_dir($dir)) {
+        return $dataFile;
+    }
+    foreach (new DirectoryIterator($dir) as $f) {
+        if (!$f->isDot() && $f->getExtension() === 'json'
+            && normalize_poll_id($f->getBasename('.json')) === $pollId) {
+            return $f->getPathname();
+        }
+    }
+    return $dataFile;
 }
 
 function read_state(string $dataFile, array $fallback): array
 {
+    $dataFile = resolve_data_file($dataFile);
     if (!is_file($dataFile)) {
         return $fallback;
     }
@@ -186,6 +210,7 @@ function write_state(string $dataDir, string $dataFile, array $state): void
 $method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
 $pollId = poll_id();
 $dataFile = $dataDir . DIRECTORY_SEPARATOR . $pollId . '.json';
+
 
 if ($method === 'GET') {
     if (isset($_GET['mailtest'])) {

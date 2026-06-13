@@ -12,9 +12,11 @@ const formatSlot = slot => {
   const date = formatter.format(new Date(`${slot.date}T00:00`));
   return slot.time ? `${date} ${slot.time}` : date;
 };
-const rawSlug = decodeURIComponent(globalThis.location.pathname.split("/").findLast(Boolean) ?? "");
+const decodeSlug = seg => { try { const once = decodeURIComponent(seg); return once.includes("%") ? decodeURIComponent(once) : once; } catch { return seg; } };
+const normalizeSlug = s => s.replace(/[^\x00-\x7F]/g, "");
+const rawSlug = decodeSlug(globalThis.location.pathname.split("/").findLast(Boolean) ?? "");
 const isAdmin = rawSlug.endsWith("*");
-const pollSlug = isAdmin ? rawSlug.slice(0, -1) : rawSlug;
+const pollSlug = normalizeSlug(isAdmin ? rawSlug.slice(0, -1) : rawSlug);
 const ignoredSlugs = new Set(["terminfinder", "index.html", "api.php"]);
 const pollId = /^[\p{L}\p{N}_-]{1,80}$/u.test(pollSlug) && !ignoredSlugs.has(pollSlug.toLowerCase()) ? pollSlug : "default";
 const isLanding = rawSlug === "" || ignoredSlugs.has(rawSlug.toLowerCase());
@@ -431,7 +433,7 @@ if (isLanding) {
   byId("createPollForm").addEventListener("submit", event => {
     event.preventDefault();
     const raw = byId("pollNameInput").value.trim();
-    const slug = raw.replace(/\s+/g, "-").replace(/[^\p{L}\p{N}_-]/gu, "").slice(0, 80);
+    const slug = normalizeSlug(raw).replaceAll(/\s+/g, "-").replaceAll(/[^\p{L}\p{N}_-]/gu, "").slice(0, 80);
     if (slug) globalThis.location.href = `./${slug}*`;
   });
 } else {
