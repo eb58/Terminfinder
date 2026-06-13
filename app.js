@@ -342,6 +342,7 @@ const renderTable = () => {
     if (showNone) {
       const noneTh = document.createElement("th");
       noneTh.scope = "col";
+      noneTh.className = "none-col";
       noneTh.textContent = "Kein Termin";
       headerRow.append(noneTh);
     }
@@ -355,7 +356,11 @@ const renderTable = () => {
       nameTh.textContent = person;
       row.append(nameTh);
       state.slots.forEach(slot => row.append(makeAvailButton(person, slot.id, `${person}, ${formatSlot(slot)}`)));
-      if (showNone) row.append(makeAvailButton(person, NONE_ID, `${person}, kein Termin passt`));
+      if (showNone) {
+        const noneCell = makeAvailButton(person, NONE_ID, `${person}, kein Termin passt`);
+        noneCell.classList.add("none-col");
+        row.append(noneCell);
+      }
       tbody.append(row);
     });
   } else {

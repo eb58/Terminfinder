@@ -317,22 +317,32 @@ h2 {
 
 .none-row td {
   border-top: 2px solid var(--line);
-  color: var(--danger);
+  color: var(--muted);
+}
+
+th.none-col {
+  border-left: 2px solid var(--line);
+  color: var(--muted);
+}
+
+td.none-col {
+  border-left: 2px solid var(--line);
 }
 
 .none-row .slot-button.active {
-  border-color: var(--danger);
-  background: #fdecea;
+  border-color: var(--muted);
+  background: #f1f3f6;
 }
 
 .none-row .slot-button.active::after {
   content: "✗";
-  color: var(--danger);
+  color: var(--muted);
 }
 
 .result.none {
-  border-color: var(--danger);
-  background: #fdf3f2;
+  border-color: var(--line);
+  background: #f8fafc;
+  color: var(--muted);
 }
 
 .slot-button {
