@@ -277,75 +277,121 @@ const renderSlots = () => {
   });
 };
 
+const makeSlotCell = slot => {
+  const td = document.createElement("td");
+  const weekday = document.createElement("span");
+  const day = document.createElement("span");
+  weekday.className = "slot-dow";
+  weekday.textContent = weekdayFormatter.format(new Date(`${slot.date}T00:00`));
+  day.textContent = dayFormatter.format(new Date(`${slot.date}T00:00`));
+  td.append(weekday, day);
+  if (slot.time) {
+    const time = document.createElement("span");
+    time.className = "slot-tod";
+    time.textContent = slot.time;
+    td.append(time);
+  }
+  return td;
+};
+
+const makeSlotTh = slot => {
+  const th = document.createElement("th");
+  th.scope = "col";
+  const weekday = document.createElement("span");
+  const day = document.createElement("span");
+  weekday.className = "slot-dow";
+  weekday.textContent = weekdayFormatter.format(new Date(`${slot.date}T00:00`));
+  day.textContent = dayFormatter.format(new Date(`${slot.date}T00:00`));
+  th.append(weekday, day);
+  if (slot.time) {
+    const time = document.createElement("span");
+    time.className = "slot-tod";
+    time.textContent = slot.time;
+    th.append(time);
+  }
+  return th;
+};
+
+const makeAvailButton = (person, id, label) => {
+  const cell = document.createElement("td");
+  const button = document.createElement("button");
+  button.className = `slot-button${isAvailable(person, id) ? " active" : ""}`;
+  button.type = "button";
+  button.ariaLabel = label;
+  button.addEventListener("click", () => toggleAvailability(person, id));
+  cell.append(button);
+  return cell;
+};
+
 const renderTable = () => {
   const table = byId("availabilityTable");
   const thead = document.createElement("thead");
   const tbody = document.createElement("tbody");
-  const headerRow = document.createElement("tr");
-  const dateHead = document.createElement("th");
-  dateHead.scope = "col";
-  dateHead.textContent = "Termin";
-  headerRow.append(dateHead);
-
-  state.people.forEach(person => {
-    const th = document.createElement("th");
-    th.scope = "col";
-    th.textContent = person;
-    headerRow.append(th);
-  });
-
-  state.slots.forEach(slot => {
-    const row = document.createElement("tr");
-    const dateCell = document.createElement("td");
-    const weekday = document.createElement("span");
-    const day = document.createElement("span");
-    weekday.className = "slot-dow";
-    weekday.textContent = weekdayFormatter.format(new Date(`${slot.date}T00:00`));
-    day.textContent = dayFormatter.format(new Date(`${slot.date}T00:00`));
-    dateCell.append(weekday, day);
-    if (slot.time) {
-      const time = document.createElement("span");
-      time.className = "slot-tod";
-      time.textContent = slot.time;
-      dateCell.append(time);
-    }
-    row.append(dateCell);
-
-    state.people.forEach(person => {
-      const cell = document.createElement("td");
-      const button = document.createElement("button");
-      button.className = `slot-button${isAvailable(person, slot.id) ? " active" : ""}`;
-      button.type = "button";
-      button.ariaLabel = `${person}, ${formatSlot(slot)}`;
-      button.addEventListener("click", () => toggleAvailability(person, slot.id));
-      cell.append(button);
-      row.append(cell);
-    });
-
-    tbody.append(row);
-  });
-
   const everyoneHasDate = state.people.every(person => (state.availability[person] ?? []).some(id => id !== NONE_ID));
-  if (!isAdmin && !everyoneHasDate) {
-    const row = document.createElement("tr");
-    row.className = "none-row";
-    const labelCell = document.createElement("td");
-    labelCell.textContent = "Kein Termin passt";
-    row.append(labelCell);
+  const showNone = !isAdmin && !everyoneHasDate;
+  const transposed = state.people.length > state.slots.length;
+
+  if (transposed) {
+    // Header: "Name" | slot1 | slot2 | ... | [Kein Termin]
+    const headerRow = document.createElement("tr");
+    const nameHead = document.createElement("th");
+    nameHead.scope = "col";
+    nameHead.textContent = "Name";
+    headerRow.append(nameHead);
+    state.slots.forEach(slot => headerRow.append(makeSlotTh(slot)));
+    if (showNone) {
+      const noneTh = document.createElement("th");
+      noneTh.scope = "col";
+      noneTh.textContent = "Kein Termin";
+      headerRow.append(noneTh);
+    }
+    thead.append(headerRow);
+
+    // Rows: one per person
     state.people.forEach(person => {
-      const cell = document.createElement("td");
-      const button = document.createElement("button");
-      button.className = `slot-button${isAvailable(person, NONE_ID) ? " active" : ""}`;
-      button.type = "button";
-      button.ariaLabel = `${person}, kein Termin passt`;
-      button.addEventListener("click", () => toggleAvailability(person, NONE_ID));
-      cell.append(button);
-      row.append(cell);
+      const row = document.createElement("tr");
+      const nameTh = document.createElement("th");
+      nameTh.scope = "row";
+      nameTh.textContent = person;
+      row.append(nameTh);
+      state.slots.forEach(slot => row.append(makeAvailButton(person, slot.id, `${person}, ${formatSlot(slot)}`)));
+      if (showNone) row.append(makeAvailButton(person, NONE_ID, `${person}, kein Termin passt`));
+      tbody.append(row);
     });
-    tbody.append(row);
+  } else {
+    // Header: "Termin" | person1 | person2 | ...
+    const headerRow = document.createElement("tr");
+    const dateHead = document.createElement("th");
+    dateHead.scope = "col";
+    dateHead.textContent = "Termin";
+    headerRow.append(dateHead);
+    state.people.forEach(person => {
+      const th = document.createElement("th");
+      th.scope = "col";
+      th.textContent = person;
+      headerRow.append(th);
+    });
+    thead.append(headerRow);
+
+    // Rows: one per slot
+    state.slots.forEach(slot => {
+      const row = document.createElement("tr");
+      row.append(makeSlotCell(slot));
+      state.people.forEach(person => row.append(makeAvailButton(person, slot.id, `${person}, ${formatSlot(slot)}`)));
+      tbody.append(row);
+    });
+
+    if (showNone) {
+      const row = document.createElement("tr");
+      row.className = "none-row";
+      const labelCell = document.createElement("td");
+      labelCell.textContent = "Kein Termin passt";
+      row.append(labelCell);
+      state.people.forEach(person => row.append(makeAvailButton(person, NONE_ID, `${person}, kein Termin passt`)));
+      tbody.append(row);
+    }
   }
 
-  thead.append(headerRow);
   table.replaceChildren(thead, tbody);
 };
 
