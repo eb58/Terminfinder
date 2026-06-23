@@ -45,6 +45,7 @@ const state = {
   slots: buildInitialSlots(),
   useTime: true,
   invitation: "",
+  notifyEmail: "",
 };
 
 const normalizeSlots = slots =>
@@ -68,6 +69,7 @@ const normalizeServerState = serverState => {
     slots,
     useTime: typeof serverState?.useTime === "boolean" ? serverState.useTime : slots.some(slot => slot.time),
     invitation: typeof serverState?.invitation === "string" ? serverState.invitation : "",
+    notifyEmail: typeof serverState?.notifyEmail === "string" ? serverState.notifyEmail : "",
   };
 };
 
@@ -78,6 +80,7 @@ const applyServerState = serverState => {
   state.slots = nextState.slots;
   state.useTime = nextState.useTime;
   state.invitation = nextState.invitation;
+  state.notifyEmail = nextState.notifyEmail;
 };
 
 const requestJson = async (url, options = {}) => {
@@ -103,6 +106,7 @@ const save = async () => {
       slots: state.slots,
       useTime: state.useTime,
       invitation: state.invitation,
+      notifyEmail: state.notifyEmail,
     }),
   });
   applyServerState(serverState);
@@ -176,6 +180,9 @@ const remapAvailability = (idMap, validIds) => {
   );
 };
 
+const isValidEmail = email =>
+  !email || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+
 const stripSlotTimes = () => {
   const slotsByDate = new Map();
   const idMap = new Map(state.slots.map(slot => [slot.id, slot.date]));
@@ -219,6 +226,7 @@ const reset = async () => {
   state.slots = buildInitialSlots();
   state.useTime = true;
   state.invitation = "";
+  state.notifyEmail = "";
   render();
   await save();
 };
@@ -435,6 +443,7 @@ const renderInvitation = () => {
   byId("inviteInput").value = state.invitation;
   byId("inviteText").textContent = state.invitation;
   byId("inviteText").hidden = isAdmin || !state.invitation;
+  byId("notifyEmailInput").value = state.notifyEmail;
   byId("invitePanel").hidden = !isAdmin && !state.invitation;
 };
 
@@ -467,6 +476,32 @@ byId("inviteInput").addEventListener("change", async event => {
   state.invitation = event.target.value.trim();
   render();
   await save();
+});
+const notifyEmailInput = byId("notifyEmailInput");
+const emailStatus = byId("emailStatus");
+
+const updateEmailStatus = () => {
+  const email = notifyEmailInput.value.trim();
+  if (!email) {
+    emailStatus.hidden = true;
+  } else if (!isValidEmail(email)) {
+    emailStatus.hidden = false;
+    emailStatus.className = "email-status error";
+    emailStatus.textContent = "Ungültige E-Mail-Adresse";
+  } else {
+    emailStatus.hidden = false;
+    emailStatus.className = "email-status valid";
+    emailStatus.textContent = "✓ E-Mail-Adresse gültig";
+  }
+};
+
+notifyEmailInput.addEventListener("input", updateEmailStatus);
+notifyEmailInput.addEventListener("change", async event => {
+  const email = event.target.value.trim();
+  if (isValidEmail(email) && email) {
+    state.notifyEmail = email;
+    await save();
+  }
 });
 byId("eyebrow").textContent = pollTitle ? `Termin abstimmen für ${pollTitle}` : "Termin abstimmen";
 

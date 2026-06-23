@@ -55,6 +55,11 @@
           <h2 class="admin-only">Einladung</h2>
           <textarea id="inviteInput" class="invite-input admin-only" rows="3" placeholder="Kurze Einladung an die Teilnehmer, z. B. worum es geht und bis wann abgestimmt werden soll."></textarea>
           <p id="inviteText" class="invite-text"></p>
+          <label class="notify-email admin-only">
+            <span>Benachrichtigung an E-Mail, sobald alle abgestimmt haben</span>
+            <input id="notifyEmailInput" type="email" autocomplete="off" placeholder="name@example.com">
+            <span id="emailStatus" class="email-status" hidden></span>
+          </label>
         </section>
 
         <section class="panel admin-only">

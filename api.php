@@ -9,6 +9,7 @@ $initialState = [
     'slots' => initial_slots(),
     'useTime' => true,
     'invitation' => '',
+    'notifyEmail' => '',
 ];
 
 header('Content-Type: application/json; charset=utf-8');
@@ -108,6 +109,7 @@ function normalize_state($state, array $fallback): array
         'slots' => $slots,
         'useTime' => $useTime,
         'invitation' => is_string($state['invitation'] ?? null) ? trim($state['invitation']) : ($fallback['invitation'] ?? ''),
+        'notifyEmail' => is_string($state['notifyEmail'] ?? null) ? trim($state['notifyEmail']) : ($fallback['notifyEmail'] ?? ''),
     ];
 }
 
@@ -166,10 +168,10 @@ function all_voted(array $state): bool
         && count(array_filter($state['people'], fn ($person) => !empty($availability[$person]))) === count($state['people']);
 }
 
-function send_mail(string $subject, string $body): bool
+function send_mail(string $subject, string $body, string $to = 'erich.brandl@gmail.com'): bool
 {
     $sent = @mail(
-        'erich.brandl@gmail.com',
+        $to,
         $subject,
         $body,
         "From: vorstand@senioren-luebars.berlin\r\nContent-Type: text/plain; charset=utf-8",
@@ -192,7 +194,8 @@ function notify_complete(string $pollId, array $state): void
 
     $title = $pollId === 'default' ? 'Terminfinder' : $pollId;
     $body = "Alle $total Teilnehmer haben abgestimmt ($title).\n\nZur Abstimmung: $link\n";
-    send_mail("Terminfinder: Abstimmung \"$title\" ist komplett", $body);
+    $to = filter_var($state['notifyEmail'] ?? '', FILTER_VALIDATE_EMAIL) ?: 'erich.brandl@gmail.com';
+    send_mail("Terminfinder: Abstimmung \"$title\" ist komplett", $body, $to);
 }
 
 function write_state(string $dataDir, string $dataFile, array $state): void

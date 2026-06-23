@@ -133,6 +133,40 @@ h2 {
   white-space: pre-line;
 }
 
+.notify-email {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  margin-top: 12px;
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.notify-email input {
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  font: inherit;
+  font-weight: 400;
+  color: var(--text, inherit);
+}
+
+.email-status {
+  display: block;
+  font-size: 12px;
+  font-weight: 400;
+  margin-top: 4px;
+}
+
+.email-status.error {
+  color: #d32f2f;
+}
+
+.email-status.valid {
+  color: #388e3c;
+}
+
 .toggle {
   display: inline-flex;
   align-items: center;
