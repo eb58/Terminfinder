@@ -109,10 +109,37 @@ h2 {
   font-size: 13px;
 }
 
-.person-form,
-.slot-form {
+.person-form {
   display: flex;
   gap: 8px;
+}
+
+.section-hint {
+  margin-top: 4px;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.slot-form {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 12px 0;
+}
+
+.range-hint {
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.slot-form input[type="number"] {
+  width: 64px;
+  min-height: 36px;
+  padding: 0 6px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  text-align: center;
 }
 
 #invitePanel h2 {

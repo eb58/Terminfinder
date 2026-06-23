@@ -207,6 +207,25 @@ const toggleTimeMode = async checked => {
   await save();
 };
 
+const addRange = async (startDate, count) => {
+  if (!startDate || count < 1) return;
+  const time = state.useTime ? byId("slotTime").value : "";
+  const base = new Date(`${startDate}T00:00`);
+  const newSlots = Array.from({ length: count }, (_, i) => {
+    const d = new Date(base);
+    d.setDate(d.getDate() + i);
+    return isoDate(d);
+  })
+    .filter(date => !state.slots.some(s => s.id === slotId(date, time)))
+    .map(date => ({ id: slotId(date, time), date, time, order: 0 }));
+  if (!newSlots.length) return;
+  state.slots = [...state.slots, ...newSlots]
+    .sort((a, b) => a.id.localeCompare(b.id))
+    .map((s, i) => ({ ...s, order: i }));
+  render();
+  await save();
+};
+
 const removeSlot = async id => {
   state.slots = state.slots.filter(slot => slot.id !== id).map((slot, order) => ({ ...slot, order }));
   state.availability = Object.fromEntries(
@@ -465,8 +484,7 @@ byId("personForm").addEventListener("submit", async event => {
 byId("slotForm").addEventListener("submit", async event => {
   event.preventDefault();
   const date = byId("slotDate");
-  const time = byId("slotTime");
-  await addSlot(date.value, time.value);
+  await addRange(date.value, parseInt(byId("rangeDays").value, 10));
   date.focus();
 });
 
@@ -507,6 +525,7 @@ byId("eyebrow").textContent = pollTitle ? `Termin abstimmen für ${pollTitle}` :
 const nextSlotDate = new Date();
 nextSlotDate.setDate(nextSlotDate.getDate() + 3);
 byId("slotDate").value = isoDate(nextSlotDate);
+byId("slotTime").value = "18:00";
 
 byId("resetButton").addEventListener("click", reset);
 

@@ -43,7 +43,7 @@
         <div class="landing-create">
           <h3>Neue Umfrage erstellen</h3>
           <form id="createPollForm" class="create-poll-form">
-            <input id="pollNameInput" type="text" placeholder="Name der Veranstaltung" autocomplete="off" maxlength="80">
+            <input id="pollNameInput" type="text" placeholder="Name der Veranstaltung" autocomplete="off" maxlength="80" aria-label="Name der Veranstaltung">
             <button type="submit">Als Admin öffnen</button>
           </form>
           <p class="landing-hint">Der Name wird Teil der URL, z.&thinsp;B. <code>/Sommerfest*</code> für den Admin-Link.</p>
@@ -53,7 +53,7 @@
       <div id="pollApp">
         <section class="panel" id="invitePanel">
           <h2 class="admin-only">Einladung</h2>
-          <textarea id="inviteInput" class="invite-input admin-only" rows="3" placeholder="Kurze Einladung an die Teilnehmer, z. B. worum es geht und bis wann abgestimmt werden soll."></textarea>
+          <textarea id="inviteInput" class="invite-input admin-only" rows="3" placeholder="Kurze Einladung an die Teilnehmer, z. B. worum es geht und bis wann abgestimmt werden soll." aria-label="Einladungstext"></textarea>
           <p id="inviteText" class="invite-text"></p>
           <label class="notify-email admin-only">
             <span>Benachrichtigung an E-Mail, sobald alle abgestimmt haben</span>
@@ -63,21 +63,19 @@
         </section>
 
         <section class="panel admin-only">
-          <div class="panel-head">
-            <div>
-              <h2>Termine</h2>
-              <p class="admin-only">Datum bearbeiten oder weitere Vorschl&auml;ge hinzuf&uuml;gen.</p>
-            </div>
-            <form id="slotForm" class="slot-form admin-only">
-              <input id="slotDate" type="date" aria-label="Datum">
-              <input id="slotTime" type="time" aria-label="Uhrzeit">
-              <label class="toggle">
-                <input id="timeMode" type="checkbox" checked>
-                <span>mit Uhrzeit</span>
-              </label>
-              <button type="submit">Hinzuf&uuml;gen</button>
-            </form>
-          </div>
+          <h2>Termine</h2>
+          <p class="section-hint admin-only">Terminvorschl&auml;ge hinzuf&uuml;gen &ndash; Anzahl erh&ouml;hen, um mehrere aufeinanderfolgende Tage auf einmal anzulegen.</p>
+          <form id="slotForm" class="slot-form admin-only">
+            <input id="slotDate" type="date" aria-label="Datum">
+            <input id="slotTime" type="time" aria-label="Uhrzeit">
+            <label class="toggle">
+              <input id="timeMode" type="checkbox" checked>
+              <span>mit Uhrzeit</span>
+            </label>
+            <span class="range-hint">Anzahl</span>
+            <input id="rangeDays" type="number" min="1" max="90" value="1" aria-label="Anzahl Tage">
+            <button type="submit">Hinzuf&uuml;gen</button>
+          </form>
           <div id="slotList" class="slot-list" aria-label="Termine"></div>
         </section>
 
@@ -102,7 +100,9 @@
             </div>
           </div>
           <div class="table-wrap">
-            <table id="availabilityTable" class="availability-table"></table>
+            <table id="availabilityTable" class="availability-table" aria-label="Verf&uuml;gbarkeiten">
+              <thead><tr><th scope="col">Termin</th></tr></thead>
+            </table>
           </div>
         </section>
 
