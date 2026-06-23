@@ -180,8 +180,7 @@ const remapAvailability = (idMap, validIds) => {
   );
 };
 
-const isValidEmail = email =>
-  !email || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+const isValidEmail = email =>!email || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 
 const stripSlotTimes = () => {
   const slotsByDate = new Map();
