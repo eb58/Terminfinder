@@ -10,7 +10,7 @@ const cleanNames = value => value.split(",").map(cleanName).filter(Boolean);
 const slotId = (date, time) => time ? `${date}T${time}` : date;
 const formatSlot = slot => {
   const date = formatter.format(new Date(`${slot.date}T00:00`));
-  return slot.time ? `${date} ${slot.time}` : date;
+  return state.useTime && slot.time ? `${date} ${slot.time}` : date;
 };
 const decodeSlug = seg => { try { const once = decodeURIComponent(seg); return once.includes("%") ? decodeURIComponent(once) : once; } catch { return seg; } };
 const normalizeSlug = s => s.replace(/[^\x00-\x7F]/g, "");
@@ -273,8 +273,8 @@ const renderSlots = () => {
   const timeMode = byId("timeMode");
   const slotTime = byId("slotTime");
   timeMode.checked = state.useTime;
-  slotTime.disabled = false;
-  slotTime.hidden = false;
+  slotTime.disabled = !state.useTime;
+  slotTime.hidden = !state.useTime;
   list.innerHTML = "";
   state.slots.forEach(slot => {
     const row = document.createElement("div");
@@ -311,7 +311,7 @@ const makeSlotCell = slot => {
   weekday.textContent = weekdayFormatter.format(new Date(`${slot.date}T00:00`));
   day.textContent = dayFormatter.format(new Date(`${slot.date}T00:00`));
   td.append(weekday, day);
-  if (slot.time) {
+  if (state.useTime && slot.time) {
     const time = document.createElement("span");
     time.className = "slot-tod";
     time.textContent = slot.time;
@@ -329,7 +329,7 @@ const makeSlotTh = slot => {
   weekday.textContent = weekdayFormatter.format(new Date(`${slot.date}T00:00`));
   day.textContent = dayFormatter.format(new Date(`${slot.date}T00:00`));
   th.append(weekday, day);
-  if (slot.time) {
+  if (state.useTime && slot.time) {
     const time = document.createElement("span");
     time.className = "slot-tod";
     time.textContent = slot.time;

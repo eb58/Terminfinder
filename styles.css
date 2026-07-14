@@ -257,6 +257,30 @@ h2 {
   padding: 0 6px;
 }
 
+.slot-list-divider {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 16px 0 10px;
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.slot-list-divider::before,
+.slot-list-divider::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--line));
+}
+
+.slot-list-divider::after {
+  background: linear-gradient(90deg, var(--line), transparent);
+}
+
 .person-list {
   display: flex;
   flex-wrap: wrap;
