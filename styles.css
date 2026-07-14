@@ -109,6 +109,10 @@ h2 {
   font-size: 13px;
 }
 
+.person-panel-head {
+  flex-direction: column;
+}
+
 .person-form {
   display: flex;
   gap: 8px;

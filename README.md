@@ -30,27 +30,12 @@ Dann http://localhost:8000 im Browser öffnen.
 
 Der `router.php` leitet alle Anfragen auf `index.html` um, damit die URL-basierte Navigation funktioniert – genauso wie `.htaccess` auf dem echten Server.
 
-### Variante 2 – Docker
-
-```bash
-docker build -t terminfinder .
-docker run -p 8080:80 terminfinder
-```
-
-Dann http://localhost:8080 öffnen.
-
-Damit Abstimmungen den Neustart überleben, ein Volume für den Datenordner einbinden:
-
-```bash
-docker run -p 8080:80 -v "$(pwd)/data:/var/www/html/data" terminfinder
-```
-
 ## Datenhaltung
 
 Jede Umfrage wird als JSON-Datei unter `data/polls/<name>.json` gespeichert. Es gibt keine Datenbank.
 
 ## Deployment
 
-Apache mit PHP 8.x. Das `.htaccess` aktiviert `mod_rewrite` und leitet alle Anfragen auf `index.html` um. Der Dockerfile zeigt das vollständige Setup.
+Apache mit PHP 8.x. Das `.htaccess` aktiviert `mod_rewrite` und leitet alle Anfragen auf `index.html` um.
 
 Die E-Mail-Benachrichtigung nutzt die PHP-Funktion `mail()` – ein korrekt konfigurierter MTA auf dem Server wird vorausgesetzt.
