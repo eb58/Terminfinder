@@ -47,6 +47,8 @@ const state = {
   invitation: "",
   notifyEmail: "",
 };
+const initialState = { value: null };
+const cloneState = value => JSON.parse(JSON.stringify(value));
 
 const normalizeSlots = slots =>
   (Array.isArray(slots) ? slots : buildInitialSlots())
@@ -93,7 +95,9 @@ const requestJson = async (url, options = {}) => {
 };
 
 const load = async () => {
-  applyServerState(await requestJson(apiUrl));
+  const loadedState = normalizeServerState(await requestJson(apiUrl));
+  applyServerState(loadedState);
+  initialState.value = cloneState(loadedState);
   render();
 };
 
@@ -238,13 +242,31 @@ const removeSlot = async id => {
   await save();
 };
 
+const confirmReset = () => new Promise(resolve => {
+  const dialog = byId("resetDialog");
+  const finish = confirmed => {
+    dialog.hidden = true;
+    dialog.removeEventListener("click", handleClick);
+    dialog.removeEventListener("keydown", handleKeydown);
+    resolve(confirmed);
+  };
+  const handleClick = event => {
+    if (event.target === dialog || event.target.closest?.("#resetCancel")) finish(false);
+    if (event.target.closest?.("#resetConfirm")) finish(true);
+  };
+  const handleKeydown = event => {
+    if (event.key === "Escape") finish(false);
+  };
+  dialog.hidden = false;
+  dialog.addEventListener("click", handleClick);
+  dialog.addEventListener("keydown", handleKeydown);
+  byId("resetCancel").focus();
+});
+
 const reset = async () => {
-  state.people = [...initialPeople];
-  state.availability = {};
-  state.slots = buildInitialSlots();
-  state.useTime = true;
-  state.invitation = "";
-  state.notifyEmail = "";
+  if (!initialState.value) return;
+  if (!await confirmReset()) return;
+  applyServerState(cloneState(initialState.value));
   render();
   await save();
 };
