@@ -15,6 +15,7 @@ $appFiles = @(
     "api.php",
     "app.js",
     "index.html",
+    "logo.jpg",
     "styles.css"
 )
 $sshOpt = "-o UpdateHostKeys=no"
